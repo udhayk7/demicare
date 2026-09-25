@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+}
+
+/* Clean, flat healthcare card & row styling */
+.healthcare-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* 12px */
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.healthcare-row {
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+}
+
+.healthcare-section {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+/* Device shell for desktop view */
+.phone-shell {
+  width: 390px;
+  height: 844px;
+  max-height: 92vh;
+  border-radius: 28px;
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.15), 0 0 0 1px #cbd5e1;
+  position: relative;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
