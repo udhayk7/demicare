@@ -11,24 +11,24 @@ export const HomeScreen: React.FC = () => {
   const { patient } = useAppState();
 
   return (
-    <div className="p-4 space-y-4 pb-20">
-      {/* 1. Care Overview Progress Card */}
-      <CareOverviewCard />
-
-      {/* 2. Attention Card (Shown if attention needed or pending items) */}
+    <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
+      {/* Attention Card (Shown if attention needed or pending items) */}
       {patient.status !== 'stable' && <AttentionCard />}
 
-      {/* 3. Next Up Medication / Event Card */}
-      <NextUpCard />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
+        {/* Left Column */}
+        <div className="space-y-4 md:space-y-6">
+          <CareOverviewCard />
+          <NextUpCard />
+          <AiCompanionCard />
+        </div>
 
-      {/* 4. Real-Time Patient Status Monitoring Card */}
-      <PatientStatusCard />
-
-      {/* 5. AI Care Companion Suggestion Card */}
-      <AiCompanionCard />
-
-      {/* 6. Quick Actions Grid */}
-      <QuickActionsGrid />
+        {/* Right Column */}
+        <div className="space-y-4 md:space-y-6">
+          <PatientStatusCard />
+          <QuickActionsGrid />
+        </div>
+      </div>
     </div>
   );
 };

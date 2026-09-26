@@ -5,6 +5,15 @@
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: #f8fafc;
@@ -32,18 +41,6 @@
   border-radius: 0.75rem;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-}
-
-/* Device shell for desktop view */
-.phone-shell {
-  width: 390px;
-  height: 844px;
-  max-height: 92vh;
-  border-radius: 28px;
-  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.15), 0 0 0 1px #cbd5e1;
-  position: relative;
-  overflow: hidden;
-  background-color: #f8fafc;
 }
 
 /* Custom scrollbars */

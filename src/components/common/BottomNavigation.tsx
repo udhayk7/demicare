@@ -15,8 +15,11 @@ export const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <nav className="bg-white border-t border-slate-200 sticky bottom-0 z-40 px-2 py-1.5">
-      <div className="flex items-center justify-around max-w-md mx-auto">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-slate-200 md:hidden shadow-[0_-2px_12px_rgba(0,0,0,0.04)]"
+      style={{ paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom, 0px))' }}
+    >
+      <div className="flex items-center justify-around w-full max-w-lg mx-auto px-2 pt-1.5 pb-1">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;

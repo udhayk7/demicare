@@ -17,7 +17,7 @@ export const ReportsScreen: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 space-y-4 pb-20">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-slate-900">Clinical & Care Reports</h2>
@@ -91,8 +91,8 @@ export const ReportsScreen: React.FC = () => {
 
       {/* Practical Medical Report Preview Modal */}
       {previewReport && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 space-y-4 border border-slate-200 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-xl w-[calc(100%-1.5rem)] max-w-lg max-h-[90dvh] overflow-y-auto p-4 sm:p-5 space-y-4 border border-slate-200 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Clinical Report Brief</h3>

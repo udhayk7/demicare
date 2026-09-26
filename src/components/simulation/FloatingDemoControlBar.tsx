@@ -17,7 +17,7 @@ export const FloatingDemoControlBar: React.FC = () => {
   } = useAppState();
 
   return (
-    <div className="fixed bottom-16 right-4 z-50">
+    <div className="fixed right-4 md:right-6 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-6 z-50 transition-all">
       <button
         onClick={() => setIsOpen(prev => !prev)}
         className="bg-slate-900 text-white px-3.5 py-2 rounded-lg shadow-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
@@ -26,7 +26,7 @@ export const FloatingDemoControlBar: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-11 right-0 w-72 bg-white border border-slate-300 text-slate-800 rounded-xl p-4 shadow-2xl space-y-2.5 mb-2">
+        <div className="absolute bottom-11 right-0 w-72 max-w-[calc(100vw-2rem)] bg-white border border-slate-300 text-slate-800 rounded-xl p-4 shadow-2xl space-y-2.5 mb-2">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-900 block">Simulation Gateway</span>

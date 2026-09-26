@@ -61,8 +61,8 @@ export const QuickActionsGrid: React.FC = () => {
 
       {/* Log Behaviour Modal */}
       {showLogModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 border border-slate-200 shadow-xl">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-xl w-[calc(100%-1rem)] max-w-sm max-h-[90dvh] overflow-y-auto p-5 space-y-3 border border-slate-200 shadow-xl">
             <h3 className="text-sm font-bold text-slate-900">Log Caregiver Observation</h3>
             <p className="text-xs text-slate-500">Record an observation regarding mood or behavior.</p>
 

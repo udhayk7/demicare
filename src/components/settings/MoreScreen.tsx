@@ -39,7 +39,7 @@ export const MoreScreen: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 space-y-4 pb-20">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-4 md:space-y-6 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-slate-900">Settings & Account</h2>
