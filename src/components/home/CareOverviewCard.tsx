@@ -13,7 +13,10 @@ export const CareOverviewCard: React.FC = () => {
     <div className="healthcare-section p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Care</h2>
+          <div className="flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Care</h2>
+            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">Caregiver-First Plan</span>
+          </div>
           <p className="text-sm font-bold text-slate-900 mt-0.5">Most care activities are on track</p>
         </div>
         <button

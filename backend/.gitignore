@@ -1,0 +1,13 @@
+# Python environment & cache
+venv/
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local configuration
+.env
+.env.*
+!.env.example

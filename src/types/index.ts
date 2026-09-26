@@ -156,6 +156,13 @@ export interface AIRecommendation {
   recommendedTime: string;
   status: 'suggested' | 'started' | 'completed' | 'not_suitable';
   icon: string;
+  observed?: string;
+  whyItMatters?: string;
+  suggestedAction?: string;
+  whyThisActivity?: string;
+  safetyCarePlan?: string;
+  expectedOutcome?: string;
+  caregiverFeedback?: string;
 }
 
 export interface AIInsight {

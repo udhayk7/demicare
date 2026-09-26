@@ -8,12 +8,16 @@ export const CareScreen: React.FC = () => {
     cognitive,
     toggleHabilitation,
     toggleCognitive,
+    logHydration,
+    logMeal,
     setActiveTab
   } = useAppState();
 
   const [activeSubSection, setActiveSubSection] = useState<'overview' | 'habilitation' | 'cognitive'>('overview');
 
   const med = routines.find(r => r.category === 'medication') || { completed: 4, total: 5 };
+  const meals = routines.find(r => r.category === 'nutrition') || { completed: 3, total: 3 };
+  const hyd = routines.find(r => r.category === 'hydration') || { completed: 5, total: 7 };
   const habCount = habilitation.filter(h => h.completed).length;
   const habTotal = habilitation.length;
   const habPct = Math.round((habCount / (habTotal || 1)) * 100);
@@ -83,20 +87,30 @@ export const CareScreen: React.FC = () => {
             <span className="text-xs font-semibold text-sky-700">View</span>
           </div>
 
-          <div className="p-4 flex items-center justify-between">
+          <div
+            onClick={() => logMeal('Nutritious Snack', 'good')}
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50"
+          >
             <div>
               <h3 className="text-sm font-bold text-slate-900">Nutrition & Meals</h3>
-              <p className="text-xs text-slate-500">3 meals logged today</p>
+              <p className="text-xs text-slate-500">{meals.completed} of {meals.total} meals logged today · Tap to log meal</p>
             </div>
-            <span className="text-xs font-semibold text-emerald-700">Completed</span>
+            <span className={`text-xs font-semibold ${meals.completed >= meals.total ? 'text-emerald-700' : 'text-sky-700'}`}>
+              {meals.completed >= meals.total ? '✓ Completed' : '+ Log Meal'}
+            </span>
           </div>
 
-          <div className="p-4 flex items-center justify-between">
+          <div
+            onClick={() => logHydration(1)}
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50"
+          >
             <div>
               <h3 className="text-sm font-bold text-slate-900">Hydration</h3>
-              <p className="text-xs text-slate-500">5 of 7 glasses logged</p>
+              <p className="text-xs text-slate-500">{hyd.completed} of {hyd.total} glasses logged · Tap to log water</p>
             </div>
-            <span className="text-xs font-semibold text-slate-600">Pending</span>
+            <span className={`text-xs font-semibold ${hyd.completed >= hyd.total ? 'text-emerald-700' : 'text-sky-700'}`}>
+              {hyd.completed >= hyd.total ? '✓ Goal Reached' : '+ Log Glass'}
+            </span>
           </div>
         </div>
       )}

@@ -6,6 +6,8 @@ export const QuickActionsGrid: React.FC = () => {
   const { setActiveTab, simulateSOS, logBehaviourObservation, addToast } = useAppState();
   const [showLogModal, setShowLogModal] = useState(false);
   const [behaviourNote, setBehaviourNote] = useState('');
+  const [obsType, setObsType] = useState<'confusion' | 'agitation' | 'repetitive_questioning' | 'wandering' | 'calm'>('confusion');
+  const [intensity, setIntensity] = useState<'mild' | 'moderate' | 'severe'>('mild');
 
   return (
     <div className="space-y-2">
@@ -62,16 +64,58 @@ export const QuickActionsGrid: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 border border-slate-200 shadow-xl">
             <h3 className="text-sm font-bold text-slate-900">Log Caregiver Observation</h3>
-            <p className="text-xs text-slate-500">Record a brief note regarding mood or behavior.</p>
+            <p className="text-xs text-slate-500">Record an observation regarding mood or behavior.</p>
+
+            {/* Type selector */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Observation Type</span>
+              <div className="flex flex-wrap gap-1">
+                {(['confusion', 'agitation', 'repetitive_questioning', 'wandering', 'calm'] as const).map(t => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setObsType(t)}
+                    className={`px-2.5 py-1 rounded text-[11px] font-medium border capitalize ${
+                      obsType === t
+                        ? 'bg-sky-50 border-sky-500 text-sky-900 font-bold'
+                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {t.replace('_', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Intensity selector */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Intensity</span>
+              <div className="flex gap-1.5">
+                {(['mild', 'moderate', 'severe'] as const).map(i => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setIntensity(i)}
+                    className={`flex-1 py-1 rounded text-[11px] font-medium border capitalize ${
+                      intensity === i
+                        ? 'bg-slate-900 border-slate-900 text-white font-bold'
+                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {i}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <textarea
               value={behaviourNote}
               onChange={e => setBehaviourNote(e.target.value)}
-              placeholder="e.g. Mild confusion during tea time, settled quickly."
-              className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:outline-none min-h-[80px]"
+              placeholder="e.g. Mild confusion during evening tea, settled quickly after reassurance."
+              className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:outline-none min-h-[70px]"
             />
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 onClick={() => setShowLogModal(false)}
                 className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
@@ -84,7 +128,7 @@ export const QuickActionsGrid: React.FC = () => {
                     addToast('Please enter an observation note.', 'warning');
                     return;
                   }
-                  logBehaviourObservation('confusion', behaviourNote, 'mild');
+                  logBehaviourObservation(obsType, behaviourNote, intensity);
                   setBehaviourNote('');
                   setShowLogModal(false);
                 }}

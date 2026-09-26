@@ -6,12 +6,13 @@ export const FloatingDemoControlBar: React.FC = () => {
   const {
     simulateMedicationReminder,
     simulateSOS,
+    simulateLowBattery,
     simulateGeofenceExit,
     simulateReturnHome,
+    resolveSafetyAlert,
     simulatePersonDetected,
     simulateUnknownPersonDetected,
     simulateGenerateNewRecommendation,
-    logBehaviourObservation,
     resetSimulations
   } = useAppState();
 
@@ -27,8 +28,11 @@ export const FloatingDemoControlBar: React.FC = () => {
       {isOpen && (
         <div className="absolute bottom-11 right-0 w-72 bg-white border border-slate-300 text-slate-800 rounded-xl p-4 shadow-2xl space-y-2.5 mb-2">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-900">Demo Simulator</span>
-            <span className="text-[10px] text-slate-500 font-medium">Interactive</span>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-900 block">Simulation Gateway</span>
+              <span className="text-[10px] text-slate-500 font-medium">IoT Hardware Simulation</span>
+            </div>
+            <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">Hackathon Demo</span>
           </div>
 
           <div className="grid grid-cols-2 gap-1.5 text-xs">
@@ -104,12 +108,22 @@ export const FloatingDemoControlBar: React.FC = () => {
 
             <button
               onClick={() => {
-                logBehaviourObservation('confusion', 'Slight disorientation during tea time.', 'mild');
+                simulateLowBattery();
                 setIsOpen(false);
               }}
-              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium rounded-lg text-left"
+              className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-900 font-medium border border-amber-200 rounded-lg text-left"
             >
-              Log Confusion
+              Low Battery
+            </button>
+
+            <button
+              onClick={() => {
+                resolveSafetyAlert();
+                setIsOpen(false);
+              }}
+              className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-medium border border-emerald-200 rounded-lg text-left"
+            >
+              Resolve Alert
             </button>
           </div>
 
@@ -119,11 +133,12 @@ export const FloatingDemoControlBar: React.FC = () => {
                 resetSimulations();
                 setIsOpen(false);
               }}
-              className="text-slate-500 hover:text-slate-900 font-medium underline"
+              className="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1"
             >
-              Reset State
+              <span>🔄</span>
+              <span>Reset Demo State</span>
             </button>
-            <span className="text-slate-400">CareCompanion Demo</span>
+            <span className="text-slate-400">Raghavan (pat-101)</span>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type {
   Patient,
   Medication,
@@ -42,6 +42,17 @@ import {
   initialReports,
   initialNotifications
 } from '../data/mockData';
+import {
+  authService,
+  patientService,
+  medicationService,
+  careService,
+  monitoringService,
+  aiService,
+  reportService,
+  simulationService,
+  PATIENT_ID
+} from '../services';
 
 export interface Toast {
   id: string;
@@ -83,13 +94,17 @@ interface AppStateContextType {
   toggleHabilitation: (id: string) => void;
   toggleCognitive: (id: string) => void;
   logBehaviourObservation: (type: BehaviourObservation['type'], note: string, intensity?: BehaviourObservation['intensity']) => void;
-  completeAiRecommendation: (id: string) => void;
+  logHydration: (amount?: number) => void;
+  logMeal: (mealType?: string, intake?: string) => void;
+  completeAiRecommendation: (id: string, feedback?: string) => void;
   
   // Simulations
   simulateMedicationReminder: () => void;
   simulateSOS: () => void;
+  simulateLowBattery: () => void;
   simulateGeofenceExit: () => void;
   simulateReturnHome: () => void;
+  resolveSafetyAlert: () => void;
   simulatePersonDetected: (personName: string, relation: string) => void;
   simulateUnknownPersonDetected: () => void;
   simulateGenerateNewRecommendation: () => void;
@@ -108,22 +123,76 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [habilitation, setHabilitation] = useState<HabilitationActivity[]>(initialHabilitationActivities);
   const [cognitive, setCognitive] = useState<CognitiveActivity[]>(initialCognitiveActivities);
   const [observations, setObservations] = useState<BehaviourObservation[]>(initialObservations);
-  const [appointments] = useState<Appointment[]>(initialAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   
   const [location, setLocation] = useState<LocationData>(initialLocation);
-  const [movement] = useState<MovementData>(initialMovement);
-  const [sleep] = useState<SleepData>(initialSleep);
+  const [movement, setMovement] = useState<MovementData>(initialMovement);
+  const [sleep, setSleep] = useState<SleepData>(initialSleep);
   const [safetyEvents, setSafetyEvents] = useState<SafetyEvent[]>(initialSafetyEvents);
   const [pendant, setPendant] = useState<PendantStatus>(initialPendant);
-  const [familiarPeople] = useState<FamiliarPerson[]>(initialFamiliarPeople);
+  const [familiarPeople, setFamiliarPeople] = useState<FamiliarPerson[]>(initialFamiliarPeople);
   const [recognitionEvents, setRecognitionEvents] = useState<RecognitionEvent[]>(initialRecognitionEvents);
   
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>(initialAIRecommendations);
-  const [aiInsights] = useState<AIInsight[]>(initialAIInsights);
+  const [aiInsights, setAiInsights] = useState<AIInsight[]>(initialAIInsights);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(initialTimelineEvents);
-  const [reports] = useState<CareReport[]>(initialReports);
+  const [reports, setReports] = useState<CareReport[]>(initialReports);
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Initial Sync from Backend
+  useEffect(() => {
+    const initBackend = async () => {
+      try {
+        await authService.login();
+        
+        // Load initial dashboard
+        const dash = await patientService.getDashboard(PATIENT_ID);
+        if (dash) {
+          if (dash.patient) setPatient(dash.patient);
+          if (dash.medications) setMedications(dash.medications);
+          if (dash.routines) setRoutines(dash.routines);
+          if (dash.location) setLocation(dash.location);
+          if (dash.movement) setMovement(dash.movement);
+          if (dash.sleep) setSleep(dash.sleep);
+          if (dash.pendant) setPendant(dash.pendant);
+        }
+
+        // Load timeline, habilitation, cognitive, reports, observations, safety & camera in background
+        const [tl, hab, cog, reps, notifs, people, recs, insights, apps, obs, safes, rec_evts] = await Promise.all([
+          reportService.getTimelineEvents('all', PATIENT_ID),
+          careService.getHabilitation(PATIENT_ID),
+          careService.getCognitive(PATIENT_ID),
+          reportService.getReports(PATIENT_ID),
+          reportService.getNotifications(PATIENT_ID),
+          monitoringService.getFamiliarPeople(PATIENT_ID),
+          aiService.getRecommendations(PATIENT_ID),
+          aiService.getInsights(PATIENT_ID),
+          careService.getAppointments(PATIENT_ID),
+          careService.getObservations(PATIENT_ID),
+          monitoringService.getSafetyEvents(PATIENT_ID),
+          monitoringService.getRecognitionEvents(PATIENT_ID)
+        ]);
+
+        if (tl && tl.length) setTimelineEvents(tl);
+        if (hab && hab.length) setHabilitation(hab);
+        if (cog && cog.length) setCognitive(cog);
+        if (reps && reps.length) setReports(reps);
+        if (notifs && notifs.length) setNotifications(notifs);
+        if (people && people.length) setFamiliarPeople(people);
+        if (recs && recs.length) setAiRecommendations(recs);
+        if (insights && insights.length) setAiInsights(insights);
+        if (apps && apps.length) setAppointments(apps);
+        if (obs && obs.length) setObservations(obs);
+        if (safes && safes.length) setSafetyEvents(safes);
+        if (rec_evts && rec_evts.length) setRecognitionEvents(rec_evts);
+      } catch (err) {
+        console.warn('Backend sync initialized with fallback data:', err);
+      }
+    };
+
+    initBackend();
+  }, []);
 
   const addToast = (message: string, type: Toast['type'] = 'info') => {
     const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
@@ -176,6 +245,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
     addToast(`${medName || 'Medication'} marked as taken.`, 'success');
     addTimelineEvent('Medication Taken', `${medName} acknowledged by caregiver.`, 'medication', 'success', 'CheckCircle2');
+
+    // Async persist to Backend
+    medicationService.markTaken(medications, id, PATIENT_ID).catch(err => {
+      console.error('Failed to sync medication acknowledge:', err);
+    });
   };
 
   const markMedicationMissed = (id: string) => {
@@ -191,6 +265,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
     addToast(`${medName || 'Medication'} marked as missed.`, 'warning');
     addTimelineEvent('Medication Missed', `${medName} scheduled dosage missed.`, 'medication', 'warning', 'AlertCircle');
+
+    // Async persist to Backend
+    medicationService.markMissed(medications, id, PATIENT_ID).catch(err => {
+      console.error('Failed to sync medication missed:', err);
+    });
   };
 
   const toggleHabilitation = (id: string) => {
@@ -210,6 +289,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (nowCompleted) {
       addTimelineEvent('Activity Completed', `Completed: ${title}`, 'activities', 'success', 'Sparkles');
     }
+
+    // Async persist to Backend
+    careService.toggleHabilitation(id, PATIENT_ID).catch(err => {
+      console.error('Failed to sync habilitation toggle:', err);
+    });
   };
 
   const toggleCognitive = (id: string) => {
@@ -229,6 +313,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (nowCompleted) {
       addTimelineEvent('Cognitive Task Completed', `Finished task: ${title}`, 'activities', 'success', 'Brain');
     }
+
+    // Async persist to Backend
+    careService.toggleCognitive(id, PATIENT_ID).catch(err => {
+      console.error('Failed to sync cognitive toggle:', err);
+    });
   };
 
   const logBehaviourObservation = (type: BehaviourObservation['type'], note: string, intensity: BehaviourObservation['intensity'] = 'mild') => {
@@ -244,22 +333,56 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setObservations(prev => [newObs, ...prev]);
     addToast(`Logged behaviour observation (${type})`, 'info');
     addTimelineEvent(`Behaviour Logged: ${type.toUpperCase()}`, note, 'behaviour', 'info', 'Eye');
+
+    // Async persist to Backend
+    careService.logObservation(type, note, intensity, PATIENT_ID).catch(err => {
+      console.error('Failed to sync observation:', err);
+    });
   };
 
-  const completeAiRecommendation = (id: string) => {
+  const logHydration = (amount: number = 1) => {
+    setRoutines(prev =>
+      prev.map(r => (r.category === 'hydration' ? { ...r, completed: Math.min(r.total, r.completed + amount) } : r))
+    );
+    addToast(`Logged ${amount} glass of water.`, 'success');
+    addTimelineEvent('Hydration Logged', `Logged ${amount} glass of water for Raghavan.`, 'activities', 'success', 'Droplets');
+    careService.logHydration(amount, PATIENT_ID).catch(err => {
+      console.error('Failed to sync hydration:', err);
+    });
+  };
+
+  const logMeal = (mealType: string = 'snack', intake: string = 'good') => {
+    setRoutines(prev =>
+      prev.map(r => (r.category === 'nutrition' ? { ...r, completed: Math.min(r.total, r.completed + 1) } : r))
+    );
+    addToast(`Logged ${mealType} (${intake} intake).`, 'success');
+    addTimelineEvent('Meal Logged', `Logged ${mealType} with ${intake} intake.`, 'activities', 'success', 'Utensils');
+    careService.logMeal(mealType, intake, '', PATIENT_ID).catch(err => {
+      console.error('Failed to sync meal:', err);
+    });
+  };
+
+  const completeAiRecommendation = (id: string, feedback: string = 'enjoyed') => {
     let title = '';
     setAiRecommendations(prev =>
       prev.map(r => {
         if (r.id === id) {
           title = r.title;
-          return { ...r, status: 'completed' as const };
+          return { ...r, status: 'completed' as const, caregiverFeedback: feedback };
         }
         return r;
       })
     );
-    addToast(`AI Suggested Activity "${title}" completed!`, 'success');
-    addTimelineEvent('AI Suggested Activity Completed', title, 'activities', 'success', 'Bot');
+    const feedbackLabel = feedback === 'enjoyed' ? 'Patient Enjoyed It' : feedback === 'disliked' ? 'Patient Disliked' : feedback === 'tired' ? 'Patient Became Tired' : feedback;
+    addToast(`AI Activity "${title}" recorded (${feedbackLabel})!`, 'success');
+    addTimelineEvent('AI Activity Completed', `${title} — Outcome recorded: ${feedbackLabel}`, 'activities', 'success', 'Sparkles');
+
+    // Async persist to Backend
+    aiService.completeRecommendation(id, feedback, PATIENT_ID).catch(err => {
+      console.error('Failed to sync AI recommendation complete:', err);
+    });
   };
+
 
   // --- DEMO SIMULATION METHODS ---
 
@@ -278,6 +401,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       },
       ...prev
     ]);
+
+    // Backend trigger
+    simulationService.simulateMedicationReminder(PATIENT_ID).catch(err => {
+      console.error('Simulate med reminder error:', err);
+    });
   };
 
   const simulateSOS = () => {
@@ -305,6 +433,32 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       },
       ...prev
     ]);
+
+    // Backend trigger
+    simulationService.simulateSOS(PATIENT_ID).catch(err => {
+      console.error('Simulate SOS error:', err);
+    });
+  };
+
+  const simulateLowBattery = () => {
+    addToast('⚠️ DEMO SIMULATION: Low Pendant Battery (14%)', 'warning');
+    setPendant(prev => ({ ...prev, batteryLevel: 14 }));
+    addTimelineEvent('⚠️ Low Battery Alert', 'Pendant battery dropped to 14%. Needs charging dock.', 'safety', 'warning', 'BatteryLow');
+    setNotifications(prev => [
+      {
+        id: 'notif-bat-' + Date.now(),
+        title: '⚠️ Low Pendant Battery (14%)',
+        message: "Raghavan's pendant dropped below 15%. Please place on charging dock.",
+        timestamp: 'Just now',
+        read: false,
+        type: 'safety'
+      },
+      ...prev
+    ]);
+
+    simulationService.simulateLowBattery(PATIENT_ID).catch(err => {
+      console.error('Simulate low battery error:', err);
+    });
   };
 
   const simulateGeofenceExit = () => {
@@ -327,6 +481,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setSafetyEvents(prev => [newSafetyEvent, ...prev]);
     addTimelineEvent('📍 Safe Zone Exit Alert', 'Patient crossed 150m safe perimeter.', 'location', 'alert', 'MapPin');
+
+    // Backend trigger
+    simulationService.simulateGeofenceExit(PATIENT_ID).catch(err => {
+      console.error('Simulate geofence exit error:', err);
+    });
   };
 
   const simulateReturnHome = () => {
@@ -340,7 +499,24 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lastUpdated: 'Just now'
     }));
     addTimelineEvent('Location Normal', 'Patient returned safely to home safe-zone.', 'location', 'success', 'Home');
+
+    // Backend trigger
+    simulationService.simulateReturnHome(PATIENT_ID).catch(err => {
+      console.error('Simulate return home error:', err);
+    });
   };
+
+  const resolveSafetyAlert = () => {
+    addToast('✓ Active emergency alerts resolved', 'success');
+    setPatient(prev => ({ ...prev, status: 'stable' }));
+    setSafetyEvents(prev => prev.map(s => ({ ...s, resolved: true })));
+    addTimelineEvent('Alert Resolved', 'Caregiver resolved active safety alarm.', 'safety', 'success', 'ShieldCheck');
+
+    simulationService.resolveSafetyAlert(PATIENT_ID).catch(err => {
+      console.error('Resolve safety alert error:', err);
+    });
+  };
+
 
   const simulatePersonDetected = (personName: string, relation: string) => {
     addToast(`📹 Camera Detected: ${personName} (${relation})`, 'info');
@@ -355,6 +531,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setRecognitionEvents(prev => [newRec, ...prev]);
     addTimelineEvent('Familiar Person Detected', `${personName} (${relation}) recognized at entrance.`, 'camera', 'info', 'UserCheck');
+
+    // Backend trigger
+    simulationService.simulatePersonDetected(personName, relation, PATIENT_ID).catch(err => {
+      console.error('Simulate person detected error:', err);
+    });
   };
 
   const simulateUnknownPersonDetected = () => {
@@ -370,6 +551,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setRecognitionEvents(prev => [newRec, ...prev]);
     addTimelineEvent('Unidentified Visitor', 'Camera detected unrecognized person at doorstep.', 'camera', 'warning', 'UserX');
+
+    // Backend trigger
+    simulationService.simulateUnknownPersonDetected(PATIENT_ID).catch(err => {
+      console.error('Simulate unknown person error:', err);
+    });
   };
 
   const simulateGenerateNewRecommendation = () => {
@@ -386,6 +572,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setAiRecommendations(prev => [newRec, ...prev]);
     addToast('🌱 AI Companion generated a new activity recommendation!', 'success');
     addTimelineEvent('AI Care Suggestion Created', newRec.title, 'activities', 'info', 'Sparkles');
+
+    // Backend trigger
+    simulationService.simulateNewRecommendation(PATIENT_ID).catch(err => {
+      console.error('Simulate AI recommendation error:', err);
+    });
   };
 
   const resetSimulations = () => {
@@ -403,6 +594,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimelineEvents(initialTimelineEvents);
     setNotifications(initialNotifications);
     addToast('Reset mock data to initial stable state.', 'info');
+
+    // Backend trigger
+    simulationService.resetSimulations(PATIENT_ID).catch(err => {
+      console.error('Reset simulations error:', err);
+    });
   };
 
   return (
@@ -439,11 +635,15 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toggleHabilitation,
         toggleCognitive,
         logBehaviourObservation,
+        logHydration,
+        logMeal,
         completeAiRecommendation,
         simulateMedicationReminder,
         simulateSOS,
+        simulateLowBattery,
         simulateGeofenceExit,
         simulateReturnHome,
+        resolveSafetyAlert,
         simulatePersonDetected,
         simulateUnknownPersonDetected,
         simulateGenerateNewRecommendation,

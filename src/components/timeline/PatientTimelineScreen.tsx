@@ -25,7 +25,7 @@ export const PatientTimelineScreen: React.FC = () => {
       {/* Header */}
       <div>
         <h2 className="text-base font-bold text-slate-900">Activity & Timeline</h2>
-        <p className="text-xs text-slate-500 font-medium">Chronological patient event log</p>
+        <p className="text-xs text-slate-500 font-medium">Unified longitudinal care memory · Single source of truth</p>
       </div>
 
       {/* Category filter pills */}
@@ -63,9 +63,9 @@ export const PatientTimelineScreen: React.FC = () => {
             return (
               <div key={event.id} className="p-3.5 space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-2 h-2 rounded-full shrink-0 ${
                         isAlert
                           ? 'bg-rose-600'
                           : isWarning
@@ -76,8 +76,11 @@ export const PatientTimelineScreen: React.FC = () => {
                       }`}
                     />
                     <span className="font-bold text-slate-900">{event.title}</span>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-semibold uppercase tracking-wider">
+                      {event.category}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-medium">{event.timeDisplay}</span>
+                  <span className="text-[11px] text-slate-400 font-medium shrink-0">{event.timeDisplay}</span>
                 </div>
 
                 <p className="text-xs text-slate-600 pl-3.5 leading-relaxed">{event.description}</p>

@@ -2,14 +2,20 @@ import React from 'react';
 import { useAppState } from '../../context/AppStateContext';
 
 export const NextUpCard: React.FC = () => {
-  const { setActiveTab } = useAppState();
+  const { medications, setActiveTab } = useAppState();
+
+  const nextMed = medications.find(m => m.status === 'pending' || m.status === 'missed');
 
   return (
     <div className="healthcare-card p-4 flex items-center justify-between">
       <div>
         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-0.5">Next</span>
-        <h4 className="text-sm font-bold text-slate-900">Donepezil 5 mg</h4>
-        <p className="text-xs text-slate-500 font-medium">Scheduled for 9:00 PM</p>
+        <h4 className="text-sm font-bold text-slate-900">
+          {nextMed ? `${nextMed.name} ${nextMed.dosage}` : 'All Medications Acknowledged'}
+        </h4>
+        <p className="text-xs text-slate-500 font-medium">
+          {nextMed ? `Scheduled for ${nextMed.scheduledTime}` : 'All daily scheduled doses completed for today'}
+        </p>
       </div>
 
       <button

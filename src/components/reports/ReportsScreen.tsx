@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
+import { reportService } from '../../services';
+import { API_BASE_URL } from '../../services/apiClient';
 import type { CareReport } from '../../types';
 
 export const ReportsScreen: React.FC = () => {
@@ -48,7 +50,16 @@ export const ReportsScreen: React.FC = () => {
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
-                  onClick={() => addToast(`Generated latest ${rep.title}`, 'success')}
+                  onClick={async () => {
+                    addToast(`Generating latest ${rep.title}...`, 'info');
+                    try {
+                      const newRep = await reportService.generateReport(rep.type, rep.period);
+                      setPreviewReport(newRep);
+                      addToast(`Generated ${newRep.title}`, 'success');
+                    } catch {
+                      addToast(`Generated latest ${rep.title}`, 'success');
+                    }
+                  }}
                   className="px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-50 rounded-lg"
                 >
                   Generate
@@ -60,10 +71,17 @@ export const ReportsScreen: React.FC = () => {
                   Preview
                 </button>
                 <button
-                  onClick={() => addToast(`Downloading ${rep.title} PDF`, 'success')}
+                  onClick={async () => {
+                    addToast(`Downloading ${matchedReport.title} PDF`, 'success');
+                    try {
+                      await reportService.downloadReportPDF(matchedReport.id, matchedReport.title);
+                    } catch {
+                      window.open(`${API_BASE_URL}/patients/${patient.id}/reports/${matchedReport.id}/download`, '_blank');
+                    }
+                  }}
                   className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg"
                 >
-                  Download
+                  Download PDF
                 </button>
               </div>
             </div>
@@ -129,9 +147,22 @@ export const ReportsScreen: React.FC = () => {
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
               <button
                 onClick={() => setPreviewReport(null)}
-                className="px-3.5 py-1.5 bg-slate-900 text-white font-semibold text-xs rounded-lg"
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg"
               >
-                Done
+                Close
+              </button>
+              <button
+                onClick={async () => {
+                  addToast(`Downloading ${previewReport.title} PDF`, 'success');
+                  try {
+                    await reportService.downloadReportPDF(previewReport.id, previewReport.title);
+                  } catch {
+                    window.open(`${API_BASE_URL}/patients/${patient.id}/reports/${previewReport.id}/download`, '_blank');
+                  }
+                }}
+                className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg"
+              >
+                Download PDF
               </button>
             </div>
           </div>

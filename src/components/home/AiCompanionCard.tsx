@@ -17,7 +17,7 @@ export const AiCompanionCard: React.FC = () => {
 
       <div>
         <h4 className="text-sm font-bold text-slate-900 leading-snug">
-          Consider a short balcony gardening session this afternoon.
+          {topRec.title}
         </h4>
         <p className="text-xs text-slate-600 mt-1 leading-relaxed">
           "{topRec.reason}"

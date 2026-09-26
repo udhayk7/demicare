@@ -7,20 +7,60 @@ export const MonitorScreen: React.FC = () => {
     movement,
     sleep,
     pendant,
+    safetyEvents,
     simulateSOS,
     simulateGeofenceExit,
     simulateReturnHome,
+    resolveSafetyAlert,
     addToast
   } = useAppState();
 
   const isAtHome = location.status === 'at_home';
+  const activeSafety = safetyEvents.find(s => !s.resolved);
 
   return (
     <div className="p-4 space-y-4 pb-20">
       {/* Header */}
       <div>
-        <h2 className="text-base font-bold text-slate-900">Patient Monitoring</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-slate-900">Patient Monitoring</h2>
+          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+            Simulated IoT Gateway
+          </span>
+        </div>
         <p className="text-xs text-slate-500 font-medium">Real-time location, pendant diagnostic & status overview</p>
+      </div>
+
+      {/* Immediate State Status Banner (Section 9) */}
+      <div className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-colors ${
+        isAtHome && !activeSafety && pendant.batteryLevel > 15
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+          : 'bg-rose-50 border-rose-200 text-rose-900'
+      }`}>
+        <div className="flex items-center gap-2">
+          <span className={`w-2.5 h-2.5 rounded-full ${
+            isAtHome && !activeSafety && pendant.batteryLevel > 15
+              ? 'bg-emerald-500'
+              : 'bg-rose-600 animate-pulse'
+          }`} />
+          <span className="font-bold">
+            {isAtHome && !activeSafety && pendant.batteryLevel > 15
+              ? 'SAFE · Inside 150m Safe Zone · Normal'
+              : !isAtHome
+              ? 'ATTENTION · Patient Outside Safe Zone'
+              : activeSafety
+              ? `CRITICAL ALERT · ${activeSafety.type === 'sos_button' ? 'SOS Active' : 'Safety Warning'}`
+              : 'ATTENTION · Low Pendant Battery'}
+          </span>
+        </div>
+        {activeSafety && (
+          <button
+            onClick={resolveSafetyAlert}
+            className="px-2.5 py-1 bg-white hover:bg-rose-100 text-rose-800 text-[11px] font-bold rounded-lg border border-rose-300 shadow-xs"
+          >
+            Resolve
+          </button>
+        )}
       </div>
 
       {/* Overview Section */}
@@ -45,17 +85,32 @@ export const MonitorScreen: React.FC = () => {
 
         <div className="p-3.5 flex items-center justify-between text-xs">
           <span className="font-medium text-slate-600">Safety</span>
-          <span className="font-semibold text-emerald-700 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>No active alerts</span>
-          </span>
+          {activeSafety ? (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-rose-600 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
+                <span>{activeSafety.type === 'sos_button' ? 'Emergency SOS' : 'Safe-Zone Alert'}</span>
+              </span>
+              <button
+                onClick={resolveSafetyAlert}
+                className="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-800 text-[10px] font-bold rounded"
+              >
+                Resolve
+              </button>
+            </div>
+          ) : (
+            <span className="font-semibold text-emerald-700 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>No active alerts</span>
+            </span>
+          )}
         </div>
 
         <div className="p-3.5 flex items-center justify-between text-xs">
           <span className="font-medium text-slate-600">Pendant</span>
-          <span className="font-semibold text-slate-900 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Connected ({pendant.batteryLevel}% battery)</span>
+          <span className={`font-semibold flex items-center gap-1.5 ${pendant.batteryLevel <= 15 ? 'text-amber-600' : 'text-slate-900'}`}>
+            <span className={`w-2 h-2 rounded-full ${pendant.batteryLevel <= 15 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span>Connected ({pendant.batteryLevel}% battery{pendant.batteryLevel <= 15 ? ' - Low' : ''})</span>
           </span>
         </div>
       </div>

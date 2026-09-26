@@ -39,9 +39,9 @@ export const PatientStatusCard: React.FC = () => {
 
         <div className="py-2 flex items-center justify-between">
           <span className="font-medium text-slate-600">Pendant</span>
-          <span className="font-semibold text-slate-900 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>{pendant.connected ? `Connected (${pendant.batteryLevel}%)` : 'Disconnected'}</span>
+          <span className={`font-semibold flex items-center gap-1.5 ${pendant.batteryLevel <= 20 ? 'text-amber-700' : 'text-slate-900'}`}>
+            <span className={`w-2 h-2 rounded-full ${!pendant.connected ? 'bg-slate-400' : pendant.batteryLevel <= 20 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span>{pendant.connected ? `Connected (${pendant.batteryLevel}%${pendant.batteryLevel <= 20 ? ' · Low' : ''})` : 'Disconnected'}</span>
           </span>
         </div>
       </div>
