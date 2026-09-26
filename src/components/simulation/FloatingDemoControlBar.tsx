@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 
 export const FloatingDemoControlBar: React.FC = () => {
+  // Only display in developer environment when explicitly requested
+  if (import.meta.env.VITE_SHOW_SIMULATOR !== 'true') {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const {
     simulateMedicationReminder,

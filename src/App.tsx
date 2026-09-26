@@ -66,8 +66,8 @@ const AppContent: React.FC = () => {
       {/* Toast Notification Layer */}
       <ToastContainer />
 
-      {/* Interactive Hackathon Simulation Bar */}
-      <FloatingDemoControlBar />
+      {/* Developer Simulation Bar (Hidden by default in normal/judge presentation UI) */}
+      {import.meta.env.VITE_SHOW_SIMULATOR === 'true' && <FloatingDemoControlBar />}
     </div>
   );
 };
