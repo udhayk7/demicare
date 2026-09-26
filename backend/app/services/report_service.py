@@ -149,7 +149,7 @@ class ReportService:
             textColor=colors.HexColor('#1e293b')
         )
 
-        elements.append(Paragraph("CARECOMPANION CLINICAL BRIEFING", title_style))
+        elements.append(Paragraph("DEMICARE CLINICAL BRIEFING", title_style))
         elements.append(Paragraph(f"Document: {report.title} · Period: {report.period}", subtitle_style))
         elements.append(Spacer(1, 10))
 
@@ -202,7 +202,7 @@ class ReportService:
 
         # Disclaimer
         elements.append(Paragraph(
-            "<i>CONFIDENTIAL MEDICAL SUMMARY: Generated via DementiaCare / CareCompanion system. Supportive data aggregated from caregiver logs, wearable pendant, and routine observations.</i>",
+            "<i>CONFIDENTIAL MEDICAL SUMMARY: Generated via DemiCare system. Supportive data aggregated from caregiver logs, wearable pendant, and routine observations.</i>",
             subtitle_style
         ))
 

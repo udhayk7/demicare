@@ -9,7 +9,7 @@ from app.api.v1.api import api_router
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Production-structured backend & healthcare integration layer for Dementia Care / CareCompanion.",
+    description="Production-structured backend & healthcare integration layer for DemiCare.",
     docs_url="/docs",
     openapi_url="/openapi.json"
 )

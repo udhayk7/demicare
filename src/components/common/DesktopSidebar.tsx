@@ -39,7 +39,7 @@ export const DesktopSidebar: React.FC = () => {
         </div>
         <div>
           <h1 className="text-sm font-bold text-slate-900 tracking-tight leading-none">
-            CareCompanion
+            DemiCare
           </h1>
           <p className="text-[11px] text-slate-500 font-medium mt-1">
             Dementia Care Platform

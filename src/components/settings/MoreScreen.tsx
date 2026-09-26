@@ -32,7 +32,7 @@ export const MoreScreen: React.FC = () => {
       title: 'App & Support',
       items: [
         { label: 'Caregiver Helpline', action: () => addToast('24/7 Helpline: 1800-425-CARE', 'info') },
-        { label: 'About CareCompanion v1.0', action: () => addToast('CareCompanion Hackathon Edition', 'info') },
+        { label: 'About DemiCare v1.0', action: () => addToast('DemiCare — Dementia Care Platform', 'info') },
         { label: 'Sign Out Session', action: () => addToast('Session locked safely.', 'info'), danger: true }
       ]
     }

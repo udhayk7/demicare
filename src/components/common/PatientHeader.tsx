@@ -18,8 +18,10 @@ export const PatientHeader: React.FC = () => {
             className="w-10 h-10 rounded-full object-cover border border-slate-200"
           />
           <div>
-            <div className="text-xs text-slate-500 font-medium">
-              Good morning, {patient.primaryCaregiver.split(' ')[0]}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+              <span className="md:hidden font-bold text-sky-800 tracking-tight">DemiCare</span>
+              <span className="md:hidden text-slate-300">•</span>
+              <span>Good morning, {patient.primaryCaregiver.split(' ')[0]}</span>
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <h1 className="text-base font-bold text-slate-900 leading-tight">
